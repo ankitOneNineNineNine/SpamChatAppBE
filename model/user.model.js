@@ -4,14 +4,16 @@ const Schema = mongoose.Schema;
 
 const userSchema = Schema(
   {
-    // fullname: {
-    //   type: String,
-    //   reqired: true,
-    // },
-    // notifications: [{
-    //     type: Schema.Types.ObjectId,
-    //     ref: 'notification'
-    // }], 
+    fullname: {
+      type: String,
+      reqired: true,
+    },
+    notifications: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "notification",
+      },
+    ],
     username: {
       type: String,
       unique: true,
@@ -30,7 +32,6 @@ const userSchema = Schema(
     },
     address: {
       type: String,
-      required: true,
     },
     image: {
       type: String,
@@ -64,7 +65,7 @@ const userSchema = Schema(
     passTokenExpiry: Date,
   },
   {
-    timestamp: true,
+    timestamps: true,
   }
 );
 

@@ -9,7 +9,32 @@ router.post("/login", function (req, res, next) {
       if (err) {
         return next(err);
       }
-      UserModel.findById(val.id).exec(function (err, user) {
+      UserModel.findById(val.id)
+        .populate("friends")
+        .populate("groups")
+        .populate("messages")
+        .populate("notifications")
+        .exec(function (err, user) {
+          if (err) {
+            return next(err);
+          }
+          if (!user) {
+            return next({
+              message: "User Not Present",
+            });
+          }
+          res.status(200).json({ token: req.body.token, user });
+        });
+    });
+  } else {
+    UserModel.findOne({
+      $or: [{ username: req.body.username }, { email: req.body.username }],
+    })
+      .populate("friends")
+      .populate("groups")
+      .populate("messages")
+      .populate("notifications")
+      .exec(function (err, user) {
         if (err) {
           return next(err);
         }
@@ -18,39 +43,26 @@ router.post("/login", function (req, res, next) {
             message: "User Not Present",
           });
         }
-        res.status(200).json({ token: req.body.token, user });
+        jwt.sign(
+          { id: user._id },
+          process.env.JWTSECRET,
+          async function (err, token) {
+            user.status = "online";
+            await user.save();
+
+            res.status(200).json({
+              user,
+              token,
+            });
+          }
+        );
       });
-    });
-  } else {
-    UserModel.findOne({
-      $or: [{ username: req.body.username }, { email: req.body.username }],
-    }).exec(function (err, user) {
-      if (err) {
-        return next(err);
-      }
-      if (!user) {
-        return next({
-          message: "User Not Present",
-        });
-      }
-      jwt.sign(
-        { id: user._id },
-        process.env.JWTSECRET,
-        async function (err, token) {
-          user.status = "online";
-          await user.save();
-          res.status(200).json({
-            user,
-            token,
-          });
-        }
-      );
-    });
   }
 });
 
 router.post("/register", async function (req, res, next) {
   let newUser = new UserModel({});
+  newUser.fullname = req.body.fullname;
   newUser.username = req.body.username;
   newUser.email = req.body.email;
   newUser.address = req.body.address;
