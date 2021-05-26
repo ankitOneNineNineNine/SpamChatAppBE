@@ -43,17 +43,31 @@ router.post("/login", function (req, res, next) {
             message: "User Not Present",
           });
         }
-        jwt.sign(
-          { id: user._id },
-          process.env.JWTSECRET,
-          async function (err, token) {
-            user.status = "online";
-            await user.save();
+        bcrypt.compare(
+          req.body.password,
+          user.password,
+          function (err, result) {
+            if (err) {
+              return next(err);
+            }
+            if (!result) {
+              return next({
+                message: "password incorrect",
+              });
+            }
+            jwt.sign(
+              { id: user._id },
+              process.env.JWTSECRET,
+              async function (err, token) {
+                user.status = "online";
+                await user.save();
 
-            res.status(200).json({
-              user,
-              token,
-            });
+                res.status(200).json({
+                  user,
+                  token,
+                });
+              }
+            );
           }
         );
       });

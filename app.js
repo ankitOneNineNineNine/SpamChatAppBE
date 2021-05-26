@@ -54,6 +54,7 @@ io.on("connection", function (socket) {
           from: from,
           to: to,
           type: "FREQ",
+          _id: notifs._id
         });
       }
     });
@@ -71,20 +72,25 @@ io.on("connection", function (socket) {
 
       if (msg.toInd) {
         toInd = await UserModel.findById(msg.toInd);
-        io.to(toInd.socketID).emit("msgR", {
-          from,
-          toInd,
-          text: msg.text,
-          _id: gotMsg._id,
-        });
+
+        if (toInd.status === "online") {
+          io.to(toInd.socketID).emit("msgR", {
+            from,
+            toInd,
+            text: msg.text,
+            _id: gotMsg._id,
+          });
+        }
       } else {
         toGrp = await GroupModel.findById(msg.toGrp);
-        io.to(toGrp._id).emit("msgR", {
-          from,
-          toGrp,
-          text: msg.text,
-          _id: gotMsg._id,
-        });
+        if (toGrp.status === "online") {
+          io.to(toGrp._id).emit("msgR", {
+            from,
+            toGrp,
+            text: msg.text,
+            _id: gotMsg._id,
+          });
+        }
       }
       socket.emit("msgR", {
         from,
@@ -99,9 +105,7 @@ io.on("connection", function (socket) {
   });
 
   socket.on("acceptOrReject", async function (msg) {
-    NotificationModel.findOneAndDelete({
-      $and: [{ from: msg.from }, { to: msg.to }],
-    });
+ 
     if (msg.reply === "accept") {
       let from = await UserModel.findById(msg.from);
       let to = await UserModel.findById(msg.to);
@@ -109,12 +113,30 @@ io.on("connection", function (socket) {
       to.friends = [...to.friends, from._id];
       await from.save();
       await to.save();
-
-      socket.emit(
-        "doneFr",
-        `Congratulations ${from.fullname} and you are friebds`
-      );
+   
+      socket.emit("doneFr", {
+        msg: `Congratulations ${from.fullname} and you are friends`,
+        id: msg.id,
+      });
+      if (from.status === "online") {
+        io.to(from.socketID).emit("newFriend", `${to.fullname} has accepted your friend request`);
+      }
+    } else {
+      socket.emit("doneFr", {
+        id: msg.id,
+      });
     }
+  });
+  socket.on("logout", async function () {
+    socket.disconnect();
+    await UserModel.findOneAndUpdate(
+      {
+        socketID: socket.id,
+      },
+      {
+        status: "offline",
+      }
+    );
   });
 });
 
@@ -125,8 +147,8 @@ app.use(function (req, res, next) {
 
 // error handler
 app.use(function (err, req, res, next) {
- 
   // set locals, only providing error in development
+  
   res.locals.message = err.message;
   res.locals.error = req.app.get("env") === "development" ? err : {};
 
