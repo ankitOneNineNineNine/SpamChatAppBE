@@ -15,6 +15,8 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(cors());
 
+app.use("/msgImgs", express.static(path.join(__dirname, "/images/messages")));
+app.use("/profileImge", express.static(path.join(__dirname, "/images/profile")));
 app.use("/appv1", appRouter);
 
 const sio = require("socket.io");
@@ -54,7 +56,7 @@ io.on("connection", function (socket) {
           from: from,
           to: to,
           type: "FREQ",
-          _id: notifs._id
+          _id: notifs._id,
         });
       }
     });
@@ -79,6 +81,7 @@ io.on("connection", function (socket) {
             toInd,
             text: msg.text,
             _id: gotMsg._id,
+            createdAt: gotMsg.createdAt,
           });
         }
       } else {
@@ -89,6 +92,7 @@ io.on("connection", function (socket) {
             toGrp,
             text: msg.text,
             _id: gotMsg._id,
+            createdAt: gotMsg.createdAt,
           });
         }
       }
@@ -98,14 +102,52 @@ io.on("connection", function (socket) {
         toGrp,
         text: msg.text,
         _id: gotMsg._id,
+        createdAt: gotMsg.createdAt,
       });
     } catch (e) {
       console.log(e);
     }
   });
+  socket.on("imgMsg", async function (msg) {
+    let from = await UserModel.findById(msg.from);
+    let toInd, toGrp;
+    if (msg.toInd) {
+      toInd = await UserModel.findById(msg.toInd);
 
+      if (toInd.status === "online") {
+        io.to(toInd.socketID).emit("msgR", {
+          from,
+          toInd,
+          text: msg.text,
+          _id: msg._id,
+          images: msg.images,
+          createdAt: msg.createdAt,
+        });
+      }
+    } else {
+      toGrp = await GroupModel.findById(msg.toGrp);
+      if (toGrp.status === "online") {
+        io.to(toGrp._id).emit("msgR", {
+          from,
+          toGrp,
+          text: msg.text,
+          _id: msg._id,
+          images: msg.images,
+          createdAt: msg.createdAt,
+        });
+      }
+    }
+    socket.emit("msgR", {
+      from,
+      toInd,
+      toGrp,
+      text: msg.text,
+      _id: msg._id,
+      images: msg.images,
+      createdAt: msg.createdAt,
+    });
+  });
   socket.on("acceptOrReject", async function (msg) {
- 
     if (msg.reply === "accept") {
       let from = await UserModel.findById(msg.from);
       let to = await UserModel.findById(msg.to);
@@ -113,13 +155,16 @@ io.on("connection", function (socket) {
       to.friends = [...to.friends, from._id];
       await from.save();
       await to.save();
-   
+
       socket.emit("doneFr", {
         msg: `Congratulations ${from.fullname} and you are friends`,
         id: msg.id,
       });
       if (from.status === "online") {
-        io.to(from.socketID).emit("newFriend", `${to.fullname} has accepted your friend request`);
+        io.to(from.socketID).emit("newFriend", {
+          msg: `${to.fullname} has accepted your friend request`,
+          id: msg.id,
+        });
       }
     } else {
       socket.emit("doneFr", {
@@ -148,7 +193,7 @@ app.use(function (req, res, next) {
 // error handler
 app.use(function (err, req, res, next) {
   // set locals, only providing error in development
-  
+  // console.log(err)
   res.locals.message = err.message;
   res.locals.error = req.app.get("env") === "development" ? err : {};
 

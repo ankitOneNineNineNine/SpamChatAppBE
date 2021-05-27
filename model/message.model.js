@@ -5,25 +5,26 @@ const Schema = mongoose.Schema;
 const messageSchema = Schema(
   {
     from: {
-        type: Schema.Types.ObjectId,
-        ref: 'user'
+      type: Schema.Types.ObjectId,
+      ref: "user",
     },
     toInd: {
-        type: Schema.Types.ObjectId,
-        ref: "user",
+      type: Schema.Types.ObjectId,
+      ref: "user",
     },
     toGrp: {
-        type: Schema.Types.ObjectId,
-        ref: 'group'
+      type: Schema.Types.ObjectId,
+      ref: "group",
     },
-    image: {
+    images: [
+      {
         type: String,
-    },
+      },
+    ],
     text: {
-        type: String,
-        required: true,
-    }
- 
+      type: String,
+      required: true,
+    },
   },
 
   {
