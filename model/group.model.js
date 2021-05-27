@@ -8,6 +8,11 @@ const groupSchema = Schema(
       type: String,
       required: true,
     },
+    status: {
+      type: 'String',
+      enum: ['online', 'offline'],
+      default: 'offline'
+    },
     members: [
       {
         type: Schema.Types.ObjectId,
