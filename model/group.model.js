@@ -25,6 +25,9 @@ const groupSchema = Schema(
         ref: "user",
       },
     ],
+    image: {
+      type: String,
+    }
   },
 
   {

@@ -16,7 +16,10 @@ app.use(cookieParser());
 app.use(cors());
 
 app.use("/msgImgs", express.static(path.join(__dirname, "/images/messages")));
-app.use("/profileImge", express.static(path.join(__dirname, "/images/profile")));
+app.use(
+  "/profileImge",
+  express.static(path.join(__dirname, "/images/profile"))
+);
 app.use("/appv1", appRouter);
 
 const sio = require("socket.io");
@@ -76,7 +79,7 @@ io.on("connection", function (socket) {
         toInd = await UserModel.findById(msg.toInd);
 
         if (toInd.status === "online") {
-          io.to(toInd.socketID).emit("msgR", {
+          socket.broadcast.to(toInd.socketID).emit("msgR", {
             from,
             toInd,
             text: msg.text,
@@ -84,10 +87,18 @@ io.on("connection", function (socket) {
             createdAt: gotMsg.createdAt,
           });
         }
+        socket.emit("msgR", {
+          from,
+          toInd,
+          text: msg.text,
+          _id: gotMsg._id,
+          createdAt: gotMsg.createdAt,
+        });
       } else {
         toGrp = await GroupModel.findById(msg.toGrp);
+
         if (toGrp.status === "online") {
-          io.to(toGrp._id).emit("msgR", {
+          io.in(`${toGrp._id}`).emit("msgR", {
             from,
             toGrp,
             text: msg.text,
@@ -96,14 +107,6 @@ io.on("connection", function (socket) {
           });
         }
       }
-      socket.emit("msgR", {
-        from,
-        toInd,
-        toGrp,
-        text: msg.text,
-        _id: gotMsg._id,
-        createdAt: gotMsg.createdAt,
-      });
     } catch (e) {
       console.log(e);
     }
@@ -193,7 +196,7 @@ app.use(function (req, res, next) {
 // error handler
 app.use(function (err, req, res, next) {
   // set locals, only providing error in development
-  // console.log(err)
+  console.log(err);
   res.locals.message = err.message;
   res.locals.error = req.app.get("env") === "development" ? err : {};
 

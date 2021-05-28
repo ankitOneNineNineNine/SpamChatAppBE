@@ -4,7 +4,6 @@ function socketAuth(socket, next) {
   let token = socket.handshake.auth.token;
 
   jwt.verify(token, process.env.JWTSECRET, function (err, val) {
-
     if (err) {
       return next(err);
     }
@@ -14,6 +13,9 @@ function socketAuth(socket, next) {
         return next(err);
       }
       user.socketID = socket.id;
+      user.groups.map((group) => {
+        socket.join(`${group._id}`);
+      });
       await user.save();
       next();
     });

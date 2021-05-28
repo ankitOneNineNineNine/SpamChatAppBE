@@ -3,8 +3,15 @@ const MessageModel = require("../model/message.model");
 const uploadMsg = require("../middlewares/upload.message");
 
 router.get("/", function (req, res, next) {
+  let groups = req.user.groups;
   MessageModel.find({
-    $or: [{ from: req.user._id }, { toInd: req.user._id }],
+    $or: [
+      { from: req.user._id },
+      { toInd: req.user._id },
+      {
+        toGrp: { $in: groups },
+      },
+    ],
   })
     .populate("from")
     .populate("toInd")
