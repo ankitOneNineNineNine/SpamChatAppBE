@@ -5,8 +5,15 @@ const uploadProfileImg = require("../middlewares/upload.profile");
 
 router.get("/", function (req, res, next) {
   UserModel.findById(req.user._id)
-    .populate("friends")
-    .populate("groups")
+  .populate("friends")
+  .populate({
+    path: "groups",
+    populate: {
+      path: "members",
+    },
+  })
+  .populate("messages")
+  .populate("notifications")
     .exec(function (err, user) {
       res.status(200).json(user);
     });

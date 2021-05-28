@@ -22,7 +22,9 @@ const notifSchema = Schema(
       type: Schema.Types.ObjectId,
       ref: "user",
     },
-    accepted: Boolean,
+    accepted: {
+      type: Boolean,
+    },
   },
   {
     timestamps: true,

@@ -11,9 +11,15 @@ router.post("/login", function (req, res, next) {
       }
       UserModel.findById(val.id)
         .populate("friends")
-        .populate("groups")
+        .populate({
+          path: "groups",
+          populate: {
+            path: "members",
+          },
+        })
         .populate("messages")
         .populate("notifications")
+
         .exec(function (err, user) {
           if (err) {
             return next(err);
@@ -34,6 +40,9 @@ router.post("/login", function (req, res, next) {
       .populate("groups")
       .populate("messages")
       .populate("notifications")
+      .populate({
+        path: "groups.members",
+      })
       .exec(function (err, user) {
         if (err) {
           return next(err);
