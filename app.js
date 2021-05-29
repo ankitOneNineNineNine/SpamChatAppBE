@@ -130,7 +130,7 @@ io.on("connection", function (socket) {
     } else {
       toGrp = await GroupModel.findById(msg.toGrp);
       if (toGrp.status === "online") {
-        io.to(toGrp._id).emit("msgR", {
+        io.in(`${toGrp._id}`).emit("msgR", {
           from,
           toGrp,
           text: msg.text,
@@ -175,6 +175,14 @@ io.on("connection", function (socket) {
       });
     }
   });
+  socket.on('newGroup', function(data){
+    data.members.forEach(async function(mem){
+        let user = await UserModel.findById(mem);
+        if(user.status === 'online'){
+          socket.broadcast.to(user.socketID).emit('newGroupCreated', 'N')
+        }
+    })
+  })
   socket.on("logout", async function () {
     socket.disconnect();
     await UserModel.findOneAndUpdate(
