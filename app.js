@@ -130,7 +130,7 @@ io.on("connection", function (socket) {
     } else {
       toGrp = await GroupModel.findById(msg.toGrp);
       if (toGrp.status === "online") {
-        io.in(`${toGrp._id}`).emit("msgR", {
+        io.to(`${toGrp._id}`).emit("msgR", {
           from,
           toGrp,
           text: msg.text,

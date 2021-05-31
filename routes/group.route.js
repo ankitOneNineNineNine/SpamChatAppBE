@@ -16,11 +16,11 @@ router.post("/", uploadGroupImg.single("image"), function (req, res, next) {
     } else {
       members.push(req.body.members);
     }
-    members.push(req.user._id);
+    members.push(`${req.user._id}`);
     newGroup["members"] = members;
   }
 
-  newGroup["admins"] = [req.user._id];
+  newGroup["admins"] = [`${req.user._id}`];
   newGroup["name"] = req.body.name;
   newGroup["status"] = "online";
   let newGr = new GroupModel(newGroup);
@@ -63,6 +63,7 @@ router.put("/:id", uploadGroupImg.single("image"), function (req, res, next) {
   if (req.file) {
     updateGroup["image"] = req.file.filename;
   }
+  console.log(req.body.members);
   if (req.body.members) {
     let members = [];
     if (Array.isArray(req.body.members)) {
@@ -70,7 +71,6 @@ router.put("/:id", uploadGroupImg.single("image"), function (req, res, next) {
     } else {
       members.push(req.body.members);
     }
-    members.push(req.user._id);
     updateGroup["members"] = members;
   }
 
@@ -81,37 +81,39 @@ router.put("/:id", uploadGroupImg.single("image"), function (req, res, next) {
   GroupModel.findById(req.params.id).exec(function (err, group) {
     if (err) return next(err);
 
-    if (!group) return next({ message: "no group" });
-    let oldMembers = group.members;
-    group.updateOne(updateGroup).then(function (updated) {
-      function newPromise() {
-        return new Promise(function (resolve, reject) {
-          let removedPeople = oldMembers.filter((om) => om !== updateGroup);
+    if (!group) return next({ message: "No group found" });
+    let oldGroupMembers = group.members;
+    group
+      .updateOne(updateGroup)
+      .then(function (updated) {
+        let newGroupMembers = updateGroup.members;
+        let removedMembers = oldGroupMembers.filter(
+          (members) => newGroupMembers.indexOf(members) < 0
+        );
 
-          removedPeople.forEach(function (userID, i) {
-            UserModel.updateOne(
-              { _id: userID },
-              { $pull: { groups: group._id } },
-              function (err, result) {
-                if (err) {
-                  reject("error");
-                }
-                if (i === removedPeople.length - 1) {
-                  resolve("done");
-                }
+        function updateUser() {
+          return new Promise(function (resolve, reject) {
+            removedMembers.forEach(async (member, i) => {
+              let user = await UserModel.findById(member);
+              let groups = user.groups;
+              groups.filter((gr) => gr !== group._id);
+              let updatedUser = {
+                groups,
+              };
+              await user.updateOne(updatedUser);
+              if (i === removedMembers.length - 1) {
+                resolve("done");
               }
-            );
+            });
           });
-        });
-      }
-      newPromise()
-        .then(function (data) {
+        }
+        updateUser().then((data) => {
           res.status(200).json("done");
-        })
-        .catch(function (err) {
-          return next(err);
         });
-    });
+      })
+      .catch(function (err) {
+        return next(err);
+      });
   });
 });
 
