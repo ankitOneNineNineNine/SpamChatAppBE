@@ -22,7 +22,7 @@ router.get("/", function (req, res, next) {
     });
 });
 
-router.post("/", uploadMsg.array("images"), function (req, res, next) {
+router.post("/", uploadMsg.array("images"),async function (req, res, next) {
   let images = [];
   let messageImages = await uploadCloudinary(req.files, "messages");
   if (messageImages.msg === "err") {

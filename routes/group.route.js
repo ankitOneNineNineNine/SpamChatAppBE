@@ -3,7 +3,7 @@ const uploadGroupImg = require("../middlewares/upload.profile");
 const GroupModel = require("../model/group.model");
 const UserModel = require("../model/user.model");
 
-router.post("/", uploadGroupImg.single("image"), function (req, res, next) {
+router.post("/", uploadGroupImg.single("image"), async function (req, res, next) {
   let newGroup = {};
 
   if (req.file) {
@@ -65,7 +65,7 @@ router.post("/", uploadGroupImg.single("image"), function (req, res, next) {
     });
 });
 
-router.put("/:id", uploadGroupImg.single("image"), function (req, res, next) {
+router.put("/:id", uploadGroupImg.single("image"),async function (req, res, next) {
   let updateGroup = {};
   if (req.file) {
     let groupImages = await uploadCloudinary(req.files, "groups");

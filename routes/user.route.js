@@ -18,7 +18,7 @@ router.get("/", function (req, res, next) {
       res.status(200).json(user);
     });
 });
-router.put("/", uploadProfileImg.single("image"), function (req, res, next) {
+router.put("/", uploadProfileImg.single("image"),async function (req, res, next) {
   let updatedBody = {};
   if (req.body.fullname) {
     updatedBody.fullname = req.body.fullname;
