@@ -63,7 +63,6 @@ router.put("/:id", uploadGroupImg.single("image"), function (req, res, next) {
   if (req.file) {
     updateGroup["image"] = req.file.filename;
   }
-  console.log(req.body.members);
   if (req.body.members) {
     let members = [];
     if (Array.isArray(req.body.members)) {
@@ -73,7 +72,6 @@ router.put("/:id", uploadGroupImg.single("image"), function (req, res, next) {
     }
     updateGroup["members"] = members;
   }
-
   updateGroup["name"] = req.body.name;
   updateGroup["status"] = "online";
 
@@ -87,27 +85,56 @@ router.put("/:id", uploadGroupImg.single("image"), function (req, res, next) {
       .updateOne(updateGroup)
       .then(function (updated) {
         let newGroupMembers = updateGroup.members;
-        let removedMembers = oldGroupMembers.filter(
-          (members) => newGroupMembers.indexOf(members) < 0
-        );
 
-        function updateUser() {
-          return new Promise(function (resolve, reject) {
-            removedMembers.forEach(async (member, i) => {
-              let user = await UserModel.findById(member);
-              let groups = user.groups;
-              groups.filter((gr) => gr !== group._id);
-              let updatedUser = {
-                groups,
-              };
-              await user.updateOne(updatedUser);
-              if (i === removedMembers.length - 1) {
-                resolve("done");
-              }
-            });
+        let removedMembers = oldGroupMembers.filter(
+          (members) => newGroupMembers.indexOf(`${members}`) < 0
+        );
+        let addedMembers = newGroupMembers.filter(
+          (members) => oldGroupMembers.indexOf(members) < 0
+        );
+        console.log(removedMembers);
+        let removeFromUserPromise = new Promise(function (resolve, reject) {
+          if (!removedMembers.length) {
+            resolve("done");
+          }
+          removedMembers.forEach(async (member, i) => {
+            let user = await UserModel.findById(member);
+            let groups = user.groups;
+
+            let udpatedGroups = groups.filter(
+              (gr) => `${gr}` != `${group._id}`
+            );
+      
+            let updatedUser = {
+              groups: udpatedGroups,
+            };
+            await user.updateOne(updatedUser);
+            if (i === removedMembers.length - 1) {
+              resolve("done");
+            }
           });
-        }
-        updateUser().then((data) => {
+        });
+
+        let addToUserPromise = new Promise(function (resolve, reject) {
+          if (!addedMembers.length) {
+            resolve("done");
+          }
+          addedMembers.forEach(async (member, i) => {
+            let user = await UserModel.findById(member);
+            let groups = user.groups;
+            groups.push(group._id);
+
+            let updatedUser = {
+              groups,
+            };
+            await user.updateOne(updatedUser);
+            if (i === addedMembers.length - 1) {
+              resolve("done");
+            }
+          });
+        });
+
+        Promise.all([removeFromUserPromise, addToUserPromise]).then((data) => {
           res.status(200).json("done");
         });
       })

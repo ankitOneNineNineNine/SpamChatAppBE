@@ -78,15 +78,14 @@ io.on("connection", function (socket) {
       if (msg.toInd) {
         toInd = await UserModel.findById(msg.toInd);
 
-        if (toInd.status === "online") {
-          socket.broadcast.to(toInd.socketID).emit("msgR", {
-            from,
-            toInd,
-            text: msg.text,
-            _id: gotMsg._id,
-            createdAt: gotMsg.createdAt,
-          });
-        }
+        socket.broadcast.to(toInd.socketID).emit("msgR", {
+          from,
+          toInd,
+          text: msg.text,
+          _id: gotMsg._id,
+          createdAt: gotMsg.createdAt,
+        });
+
         socket.emit("msgR", {
           from,
           toInd,
@@ -97,15 +96,13 @@ io.on("connection", function (socket) {
       } else {
         toGrp = await GroupModel.findById(msg.toGrp);
 
-        if (toGrp.status === "online") {
-          io.in(`${toGrp._id}`).emit("msgR", {
-            from,
-            toGrp,
-            text: msg.text,
-            _id: gotMsg._id,
-            createdAt: gotMsg.createdAt,
-          });
-        }
+        io.in(`${toGrp._id}`).emit("msgR", {
+          from,
+          toGrp,
+          text: msg.text,
+          _id: gotMsg._id,
+          createdAt: gotMsg.createdAt,
+        });
       }
     } catch (e) {
       console.log(e);
@@ -117,28 +114,25 @@ io.on("connection", function (socket) {
     if (msg.toInd) {
       toInd = await UserModel.findById(msg.toInd);
 
-      if (toInd.status === "online") {
-        io.to(toInd.socketID).emit("msgR", {
-          from,
-          toInd,
-          text: msg.text,
-          _id: msg._id,
-          images: msg.images,
-          createdAt: msg.createdAt,
-        });
-      }
+      io.to(toInd.socketID).emit("msgR", {
+        from,
+        toInd,
+        text: msg.text,
+        _id: msg._id,
+        images: msg.images,
+        createdAt: msg.createdAt,
+      });
     } else {
       toGrp = await GroupModel.findById(msg.toGrp);
-      if (toGrp.status === "online") {
-        io.to(`${toGrp._id}`).emit("msgR", {
-          from,
-          toGrp,
-          text: msg.text,
-          _id: msg._id,
-          images: msg.images,
-          createdAt: msg.createdAt,
-        });
-      }
+
+      io.to(`${toGrp._id}`).emit("msgR", {
+        from,
+        toGrp,
+        text: msg.text,
+        _id: msg._id,
+        images: msg.images,
+        createdAt: msg.createdAt,
+      });
     }
     socket.emit("msgR", {
       from,
@@ -175,14 +169,14 @@ io.on("connection", function (socket) {
       });
     }
   });
-  socket.on('newGroup', function(data){
-    data.members.forEach(async function(mem){
-        let user = await UserModel.findById(mem);
-        if(user.status === 'online'){
-          socket.broadcast.to(user.socketID).emit('newGroupCreated', 'N')
-        }
-    })
-  })
+  socket.on("newGroup", function (data) {
+    data.members.forEach(async function (mem) {
+      let user = await UserModel.findById(mem);
+      if (user.status === "online") {
+        socket.broadcast.to(user.socketID).emit("newGroupCreated", "N");
+      }
+    });
+  });
   socket.on("logout", async function () {
     socket.disconnect();
     await UserModel.findOneAndUpdate(
