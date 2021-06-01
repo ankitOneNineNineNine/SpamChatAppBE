@@ -15,6 +15,11 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(cors());
 
+app.get('/', function(req,res,next){
+  res.send('WORKING FINE')
+})
+
+
 app.use("/msgImgs", express.static(path.join(__dirname, "/images/messages")));
 app.use(
   "/profileImge",
@@ -206,6 +211,6 @@ app.use(function (err, req, res, next) {
   res.status(err.status || 500).json(err);
 });
 
-server.listen(process.env.port||8000, function () {
+server.listen(process.env.PORT||8000,'0.0.0.0', function () {
   console.log("Connected!");
 });
