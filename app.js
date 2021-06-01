@@ -15,10 +15,9 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(cors());
 
-app.get('/', function(req,res,next){
-  res.send('WORKING FINE')
-})
-
+app.get("/", function (req, res, next) {
+  res.send("WORKING FINE");
+});
 
 app.use("/msgImgs", express.static(path.join(__dirname, "/images/messages")));
 app.use(
@@ -101,7 +100,7 @@ io.on("connection", function (socket) {
       } else {
         toGrp = await GroupModel.findById(msg.toGrp);
 
-        io.in(`${toGrp._id}`).emit("msgR", {
+        io.to(`${toGrp._id}`).emit("msgR", {
           from,
           toGrp,
           text: msg.text,
@@ -211,6 +210,6 @@ app.use(function (err, req, res, next) {
   res.status(err.status || 500).json(err);
 });
 
-server.listen(process.env.PORT||8000,'0.0.0.0', function () {
+server.listen(process.env.PORT || 8000, "0.0.0.0", function () {
   console.log("Connected!");
 });
