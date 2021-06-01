@@ -36,7 +36,7 @@ const server = require("http").createServer(app);
 
 const io = sio(server, {
   cors: {
-    origin: "https://60b617f85fa6c4b73f2537a8--boomchat.netlify.app",
+    origin: "https://60b627aa6a1bd946de2f65d1--boomchat.netlify.app",
     methods: ["GET", "POST"],
   },
 });
