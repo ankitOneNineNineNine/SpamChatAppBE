@@ -126,6 +126,15 @@ io.on("connection", function (socket) {
         images: msg.images,
         createdAt: msg.createdAt,
       });
+      socket.emit("msgR", {
+        from,
+        toInd,
+        toGrp,
+        text: msg.text,
+        _id: msg._id,
+        images: msg.images,
+        createdAt: msg.createdAt,
+      });
     } else {
       toGrp = await GroupModel.findById(msg.toGrp);
 
@@ -138,15 +147,6 @@ io.on("connection", function (socket) {
         createdAt: msg.createdAt,
       });
     }
-    socket.emit("msgR", {
-      from,
-      toInd,
-      toGrp,
-      text: msg.text,
-      _id: msg._id,
-      images: msg.images,
-      createdAt: msg.createdAt,
-    });
   });
   socket.on("acceptOrReject", async function (msg) {
     if (msg.reply === "accept") {
