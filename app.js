@@ -206,6 +206,6 @@ app.use(function (err, req, res, next) {
   res.status(err.status || 500).json(err);
 });
 
-server.listen(8000, function () {
+server.listen(process.env.port||8000, function () {
   console.log("Connected!");
 });
