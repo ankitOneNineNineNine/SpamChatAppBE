@@ -18,42 +18,45 @@ router.get("/", function (req, res, next) {
       res.status(200).json(user);
     });
 });
-router.put("/", uploadProfileImg.single("image"),async function (req, res, next) {
-  let updatedBody = {};
-  if (req.body.fullname) {
-    updatedBody.fullname = req.body.fullname;
-  }
-  if (req.body.address) {
-    updatedBody.address = req.body.address;
-  }
-  if (req.file) {
-    let profileImages = await uploadCloudinary(req.files, "profiles");
-    if (profileImages.msg === "err") {
-      return next(profileImages.err);
+router.put(
+  "/",
+  uploadProfileImg.single("image"),
+  async function (req, res, next) {
+    let updatedBody = {};
+    if (req.body.fullname) {
+      updatedBody.fullname = req.body.fullname;
     }
+    if (req.body.address) {
+      updatedBody.address = req.body.address;
+    }
+    if (req.file) {
+      let profileImages = await uploadCloudinary([req.file], "profiles");
+      if (profileImages.msg === "err") {
+        return next(profileImages.err);
+      }
 
-    profileImages.urls.forEach((url) => {
-      updatedBody.image = url;
+      // updatedUser.image = fileName
+      updatedBody.image = profileImages.urls[0];
+    }
+    UserModel.findById(req.user._id).exec(async function (err, user) {
+      if (err) return next(err);
+      if (!user) return next({ message: "user not present" });
+      if (user.image) {
+        await require("fs/promises").unlink(
+          path.join(__dirname, `/images/profile/${user.image}`)
+        );
+      }
+      user
+        .updateOne(updatedBody)
+        .then(function (data) {
+          res.status(200).json("Updated");
+        })
+        .catch(function (err) {
+          return next(err);
+        });
     });
   }
-  UserModel.findById(req.user._id).exec(async function (err, user) {
-    if (err) return next(err);
-    if (!user) return next({ message: "user not present" });
-    if (user.image) {
-      await require("fs/promises").unlink(
-        path.join(__dirname, `/images/profile/${user.image}`)
-      );
-    }
-    user
-      .updateOne(updatedBody)
-      .then(function (data) {
-        res.status(200).json("Updated");
-      })
-      .catch(function (err) {
-        return next(err);
-      });
-  });
-});
+);
 
 router.post("/search", function (req, res, next) {
   let srcText = req.body.srcText;
