@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 // const conxnURI = "mongodb://localhost:27017/ChatApp";
 
 mongoose.connect(
-  conxnURI,
+  process.env.MONGO_URI,
   {
     useNewUrlParser: true,
     useUnifiedTopology: true,
