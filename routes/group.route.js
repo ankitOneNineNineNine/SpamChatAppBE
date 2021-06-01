@@ -7,7 +7,14 @@ router.post("/", uploadGroupImg.single("image"), function (req, res, next) {
   let newGroup = {};
 
   if (req.file) {
-    newGroup["image"] = req.file.filename;
+    let groupImages = await uploadCloudinary(req.files, "groups");
+    if (groupImages.msg === "err") {
+      return next(groupImages.err);
+    }
+
+    groupImages.urls.forEach((url) => {
+      newGroup["image"] = url;
+    });
   }
   if (req.body.members) {
     let members = [];
@@ -61,7 +68,14 @@ router.post("/", uploadGroupImg.single("image"), function (req, res, next) {
 router.put("/:id", uploadGroupImg.single("image"), function (req, res, next) {
   let updateGroup = {};
   if (req.file) {
-    updateGroup["image"] = req.file.filename;
+    let groupImages = await uploadCloudinary(req.files, "groups");
+    if (groupImages.msg === "err") {
+      return next(groupImages.err);
+    }
+
+    groupImages.urls.forEach((url) => {
+      updateGroup["image"] = url;
+    });
   }
   if (req.body.members) {
     let members = [];
@@ -104,7 +118,7 @@ router.put("/:id", uploadGroupImg.single("image"), function (req, res, next) {
             let udpatedGroups = groups.filter(
               (gr) => `${gr}` != `${group._id}`
             );
-      
+
             let updatedUser = {
               groups: udpatedGroups,
             };

@@ -24,8 +24,13 @@ router.get("/", function (req, res, next) {
 
 router.post("/", uploadMsg.array("images"), function (req, res, next) {
   let images = [];
-  req.files.forEach((file) => {
-    images.push(file.filename);
+  let messageImages = await uploadCloudinary(req.files, "messages");
+  if (messageImages.msg === "err") {
+    return next(messageImages.err);
+  }
+
+  messageImages.urls.forEach((url) => {
+    images.push(url);
   });
   let textMsg = req.body.textMsg;
   let toInd = req.body.toInd;

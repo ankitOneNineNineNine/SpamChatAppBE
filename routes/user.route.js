@@ -5,15 +5,15 @@ const uploadProfileImg = require("../middlewares/upload.profile");
 
 router.get("/", function (req, res, next) {
   UserModel.findById(req.user._id)
-  .populate("friends")
-  .populate({
-    path: "groups",
-    populate: {
-      path: "members",
-    },
-  })
-  .populate("messages")
-  .populate("notifications")
+    .populate("friends")
+    .populate({
+      path: "groups",
+      populate: {
+        path: "members",
+      },
+    })
+    .populate("messages")
+    .populate("notifications")
     .exec(function (err, user) {
       res.status(200).json(user);
     });
@@ -27,7 +27,14 @@ router.put("/", uploadProfileImg.single("image"), function (req, res, next) {
     updatedBody.address = req.body.address;
   }
   if (req.file) {
-    updatedBody.image = req.file.filename;
+    let profileImages = await uploadCloudinary(req.files, "profiles");
+    if (profileImages.msg === "err") {
+      return next(profileImages.err);
+    }
+
+    profileImages.urls.forEach((url) => {
+      updatedBody.image = url;
+    });
   }
   UserModel.findById(req.user._id).exec(async function (err, user) {
     if (err) return next(err);
