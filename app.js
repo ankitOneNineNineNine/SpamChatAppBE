@@ -37,7 +37,7 @@ const server = require("http").createServer(app);
 
 const io = sio(server, {
   cors: {
-    origin: "http://localhost:3000",
+    origin: "*",
     methods: ["GET", "POST"],
   },
 });
