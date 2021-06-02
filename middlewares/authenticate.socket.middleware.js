@@ -13,6 +13,7 @@ function socketAuth(socket, next) {
         return next(err);
       }
       user.socketID = socket.id;
+      user.status = "online";
       user.groups.map((group) => {
         socket.join(`${group._id}`);
       });
