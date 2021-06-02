@@ -192,6 +192,16 @@ io.on("connection", function (socket) {
       }
     );
   });
+  socket.on("disconnect", function () {
+    await UserModel.findOneAndUpdate(
+      {
+        socketID: socket.id,
+      },
+      {
+        status: "offline",
+      }
+    );
+  });
 });
 
 // catch 404 and forward to error handler
