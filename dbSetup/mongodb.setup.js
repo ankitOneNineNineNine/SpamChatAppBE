@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
 // const conxnURI = "mongodb://localhost:27017/ChatApp";
-
+// process.env.MONGO_URI||
 mongoose.connect(
   process.env.MONGO_URI,
   {

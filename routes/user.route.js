@@ -2,6 +2,7 @@ const router = require("express").Router();
 const UserModel = require("../model/user.model");
 const path = require("path");
 const uploadProfileImg = require("../middlewares/upload.profile");
+const {uploadCloudinary} = require("../middlewares/upload.cloudinary");
 
 router.get("/", function (req, res, next) {
   UserModel.findById(req.user._id)
@@ -30,7 +31,7 @@ router.put(
       updatedBody.address = req.body.address;
     }
     if (req.file) {
-      let profileImages = await uploadCloudinary([req.file], "profiles");
+      let profileImages = await uploadCloudinary([req.file], "profile");
       if (profileImages.msg === "err") {
         return next(profileImages.err);
       }

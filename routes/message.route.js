@@ -1,6 +1,7 @@
 const router = require("express").Router();
 const MessageModel = require("../model/message.model");
 const uploadMsg = require("../middlewares/upload.message");
+const {uploadCloudinary} = require('../middlewares/upload.cloudinary')
 
 router.get("/", function (req, res, next) {
   let groups = req.user.groups;

@@ -10,6 +10,7 @@ function uploadCloudinary(images, locs) {
   });
   return new Promise(function (resolve, reject) {
     images.forEach(async (image, i) => {
+    
       let imgURL = path.join(__dirname, `../images/${locs}/${image.filename}`);
       try {
         let result = await cloudinary.uploader.upload(imgURL, {

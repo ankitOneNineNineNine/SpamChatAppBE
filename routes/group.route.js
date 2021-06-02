@@ -1,6 +1,7 @@
 const router = require("express").Router();
 const uploadGroupImg = require("../middlewares/upload.profile");
 const GroupModel = require("../model/group.model");
+const {uploadCloudinary} = require('../middlewares/upload.cloudinary')
 const UserModel = require("../model/user.model");
 
 router.post(
@@ -10,7 +11,7 @@ router.post(
     let newGroup = {};
 
     if (req.file) {
-      let groupImages = await uploadCloudinary([req.file], "groups");
+      let groupImages = await uploadCloudinary([req.file], "profile");
       if (groupImages.msg === "err") {
         return next(groupImages.err);
       }
@@ -73,7 +74,7 @@ router.put(
   async function (req, res, next) {
     let updateGroup = {};
     if (req.file) {
-      let groupImages = await uploadCloudinary([req.file], "groups");
+      let groupImages = await uploadCloudinary([req.file], "profile");
       if (groupImages.msg === "err") {
         return next(groupImages.err);
       }

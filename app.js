@@ -36,7 +36,7 @@ const server = require("http").createServer(app);
 
 const io = sio(server, {
   cors: {
-    origin: "https://60b627aa6a1bd946de2f65d1--boomchat.netlify.app",
+    origin: "https://60b6df5d4baf502d8757ebf7--boomchat.netlify.app",
     methods: ["GET", "POST"],
   },
 });
@@ -210,6 +210,6 @@ app.use(function (err, req, res, next) {
   res.status(err.status || 500).json(err);
 });
 
-server.listen(process.env.PORT || 8000, "0.0.0.0", function () {
+server.listen(process.env.PORT, "0.0.0.0", function () {
   console.log("Connected!");
 });
