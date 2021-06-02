@@ -1,7 +1,7 @@
 const router = require("express").Router();
 const uploadGroupImg = require("../middlewares/upload.profile");
 const GroupModel = require("../model/group.model");
-const {uploadCloudinary} = require('../middlewares/upload.cloudinary')
+const { uploadCloudinary } = require("../middlewares/upload.cloudinary");
 const UserModel = require("../model/user.model");
 
 router.post(
@@ -9,14 +9,13 @@ router.post(
   uploadGroupImg.single("image"),
   async function (req, res, next) {
     let newGroup = {};
-
+    let fileUpload;
     if (req.file) {
-      let groupImages = await uploadCloudinary([req.file], "profile");
-      if (groupImages.msg === "err") {
-        return next(groupImages.err);
-      }
-
-      newGroup.image = groupImages.urls[0];
+      let fileUpload = new Promise(async function (resolve, reject) {
+        let profileImages = await streamUpload(req.file.buffer, "profile");
+        newGroup["image"] = profileImages.url;
+        resolve("done");
+      });
     }
     if (req.body.members) {
       let members = [];
@@ -32,6 +31,8 @@ router.post(
     newGroup["admins"] = [`${req.user._id}`];
     newGroup["name"] = req.body.name;
     newGroup["status"] = "online";
+
+    if (fileUpload) await Promise.all([fileUpload]);
     let newGr = new GroupModel(newGroup);
     newGr
       .save()
@@ -73,14 +74,13 @@ router.put(
   uploadGroupImg.single("image"),
   async function (req, res, next) {
     let updateGroup = {};
+    let fileUpload;
     if (req.file) {
-      let groupImages = await uploadCloudinary([req.file], "profile");
-      if (groupImages.msg === "err") {
-        return next(groupImages.err);
-      }
-
-      updateGroup.image = groupImages.urls[0];
-  
+      let fileUpload = new Promise(async function (resolve, reject) {
+        let profileImages = await streamUpload(req.file.buffer, "profile");
+        updateGroup["image"] = profileImages.url;
+        resolve("done");
+      });
     }
     if (req.body.members) {
       let members = [];
@@ -94,7 +94,7 @@ router.put(
     updateGroup["name"] = req.body.name;
     updateGroup["status"] = "online";
 
-    // remaining cha yo mildiana
+    if (fileUpload) await Promise.all([fileUpload]);
     GroupModel.findById(req.params.id).exec(function (err, group) {
       if (err) return next(err);
 

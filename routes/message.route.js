@@ -2,6 +2,7 @@ const router = require("express").Router();
 const MessageModel = require("../model/message.model");
 const uploadMsg = require("../middlewares/upload.message");
 const { uploadCloudinary } = require("../middlewares/upload.cloudinary");
+const streamUpload = require("../middlewares/directCloudinary");
 
 router.get("/", function (req, res, next) {
   let groups = req.user.groups;
@@ -25,14 +26,18 @@ router.get("/", function (req, res, next) {
 
 router.post("/", uploadMsg.array("images"), async function (req, res, next) {
   let images = [];
-  let messageImages = await uploadCloudinary(req.files, "messages");
-  if (messageImages.msg === "err") {
-    return next(messageImages.err);
-  }
+  let fileUpload = new Promise(async function (resolve, reject) {
+    req.files.forEach(async function (file, i) {
+      let messageImages = await streamUpload(file.buffer, "messages");
 
-  messageImages.urls.forEach((url) => {
-    images.push(url);
+      images.push(messageImages.url);
+      if (i === req.files.length - 1) {
+        resolve("done");
+      }
+    });
   });
+  await Promise.all([fileUpload]);
+
   let textMsg = req.body.textMsg;
   let toInd = req.body.toInd;
   let from = req.body.from;

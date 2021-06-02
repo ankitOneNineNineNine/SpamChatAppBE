@@ -1,4 +1,8 @@
 const multer = require("multer");
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
+
+
+
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -10,5 +14,5 @@ const storage = multer.diskStorage({
   },
 });
 
-const upload = multer({ storage: storage });
+const upload = multer();
 module.exports = upload;

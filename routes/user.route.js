@@ -2,7 +2,9 @@ const router = require("express").Router();
 const UserModel = require("../model/user.model");
 const path = require("path");
 const uploadProfileImg = require("../middlewares/upload.profile");
-const {uploadCloudinary} = require("../middlewares/upload.cloudinary");
+const { uploadCloudinary } = require("../middlewares/upload.cloudinary");
+
+const streamUpload = require("../middlewares/directCloudinary");
 
 router.get("/", function (req, res, next) {
   UserModel.findById(req.user._id)
@@ -30,15 +32,15 @@ router.put(
     if (req.body.address) {
       updatedBody.address = req.body.address;
     }
+    let fileUpload;
     if (req.file) {
-      let profileImages = await uploadCloudinary([req.file], "profile");
-      if (profileImages.msg === "err") {
-        return next(profileImages.err);
-      }
-
-      // updatedUser.image = fileName
-      updatedBody.image = profileImages.urls[0];
+      fileUpload = new Promise(async function (resolve, reject) {
+        let profileImages = await streamUpload(req.file.buffer, "profile");
+        updatedBody["image"] = profileImages.url;
+        resolve("done");
+      });
     }
+    if (fileUpload) await Promise.all([fileUpload]);
     UserModel.findById(req.user._id).exec(async function (err, user) {
       if (err) return next(err);
       if (!user) return next({ message: "user not present" });
