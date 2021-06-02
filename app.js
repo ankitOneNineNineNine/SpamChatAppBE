@@ -192,7 +192,7 @@ io.on("connection", function (socket) {
       }
     );
   });
-  socket.on("disconnect", function () {
+  socket.on("disconnect", async function () {
     await UserModel.findOneAndUpdate(
       {
         socketID: socket.id,
