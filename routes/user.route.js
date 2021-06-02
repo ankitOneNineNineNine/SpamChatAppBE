@@ -63,6 +63,7 @@ router.put(
 
 router.post("/search", function (req, res, next) {
   let srcText = req.body.srcText;
+
   UserModel.find(
     {
       $or: [
@@ -76,11 +77,7 @@ router.post("/search", function (req, res, next) {
       return next(err);
     }
 
-    let rU = users.filter(
-      (u) => JSON.stringify(users[0]._id) !== JSON.stringify(req.user._id)
-    );
-
-    res.status(200).json(rU);
+    res.status(200).json(users);
   });
 });
 
