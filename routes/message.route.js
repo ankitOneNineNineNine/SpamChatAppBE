@@ -15,7 +15,7 @@ router.get("/", function (req, res, next) {
       },
     ],
   })
-    .sort(-1)
+    .sort({ createdAt: -1 })
     .limit(10)
     .populate("from")
     .populate("toInd")
