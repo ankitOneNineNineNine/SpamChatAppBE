@@ -22,7 +22,7 @@ router.get("/", function (req, res, next) {
     .populate("toGrp")
     .exec(function (err, messages) {
       if (err) return next(err);
-      res.status(200).json(messages);
+      res.status(200).json(messages.reverse());
     });
 });
 
