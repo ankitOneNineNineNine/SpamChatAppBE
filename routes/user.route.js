@@ -71,7 +71,7 @@ router.post("/search", function (req, res, next) {
         { username: { $regex: srcText, $options: "i" } },
       ],
     },
-    "_id fullname username email address"
+    "_id fullname username email address image"
   ).exec(function (err, users) {
     if (err) {
       return next(err);
