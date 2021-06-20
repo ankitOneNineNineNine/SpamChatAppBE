@@ -48,7 +48,7 @@ io.on("connection", function (socket) {
     console.log(err);
   });
   socket.on("user", function (user) {
-    console.log('user wala')
+    console.log("user wala");
     socket.broadcast.emit("status", user);
   });
   socket.on("friendReqSend", async function (req) {
@@ -180,7 +180,7 @@ io.on("connection", function (socket) {
   socket.on("logout", async function (msg) {
     let user = await findOne({ socketID: socket.id });
     let sID = user.socketID.splice(user.socketID.indexOf(socket.id), 1);
-    console.log('logout')
+    console.log("logout");
     await UserModel.findOneAndUpdate(
       {
         socketID: socket.id,
@@ -190,11 +190,10 @@ io.on("connection", function (socket) {
         socketID: sID,
       }
     );
-    socket.broadcast.emit("status", user);
+    io.emit("status", user);
     socket.disconnect();
   });
   socket.on("disconnect", async function () {
-    console.log('disconnect')
     let user = await findOne({ socketID: socket.id });
     let sID = user.socketID.splice(user.socketID.indexOf(socket.id), 1);
     await UserModel.findOneAndUpdate(
@@ -206,7 +205,7 @@ io.on("connection", function (socket) {
         socketID: sID,
       }
     );
-    socket.broadcast.emit("status", user);
+    io.emit("status", user);
   });
 });
 
