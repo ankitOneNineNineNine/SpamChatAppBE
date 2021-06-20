@@ -48,7 +48,7 @@ io.on("connection", function (socket) {
     console.log(err);
   });
   socket.on("user", function (user) {
-    io.emit("status", user);
+    socket.broadcast.emit("status", user);
   });
   socket.on("friendReqSend", async function (req) {
     let to = await UserModel.findById(req.to);
