@@ -177,7 +177,6 @@ io.on("connection", function (socket) {
     });
   });
   socket.on("logout", async function () {
-    socket.disconnect();
     let user = await findOne({ socketID: socket.id });
     await UserModel.findOneAndUpdate(
       {
@@ -189,6 +188,7 @@ io.on("connection", function (socket) {
       }
     );
     io.emit("status", user);
+    socket.disconnect();
   });
   socket.on("disconnect", async function () {
     let user = await findOne({ socketID: socket.id });
