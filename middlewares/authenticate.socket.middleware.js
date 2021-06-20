@@ -12,13 +12,13 @@ function socketAuth(socket, next) {
         const err = new Error("not authorized");
         return next(err);
       }
-      // if (user.status === "online") {
-      //   let s = user.socketID;
-      //   s.push(socket.id);
-      //   user.socketID = s;
-      // }
-
-      user.socketID = socket.id;
+      if (user.status === "online") {
+        let s = user.socketID;
+        s.push(socket.id);
+        user.socketID = s;
+      } else {
+        user.socketID = [socket.id];
+      }
       user.status = "online";
       user.groups.map((group) => {
         socket.join(`${group._id}`);

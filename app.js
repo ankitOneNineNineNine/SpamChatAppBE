@@ -83,20 +83,15 @@ io.on("connection", function (socket) {
       if (msg.toInd) {
         toInd = await UserModel.findById(msg.toInd);
 
-        socket.broadcast.to(toInd.socketID).emit("msgR", {
-          from,
-          toInd,
-          text: msg.text,
-          _id: gotMsg._id,
-          createdAt: gotMsg.createdAt,
-        });
-
-        socket.emit("msgR", {
-          from,
-          toInd,
-          text: msg.text,
-          _id: gotMsg._id,
-          createdAt: gotMsg.createdAt,
+        toInd.socketID.map(function (ids) {
+          io.to(ids).emit("msgR", {
+            from,
+            toInd,
+            text: msg.text,
+            _id: msg._id,
+            images: msg.images,
+            createdAt: msg.createdAt,
+          });
         });
       } else {
         toGrp = await GroupModel.findById(msg.toGrp);
@@ -119,22 +114,15 @@ io.on("connection", function (socket) {
     if (msg.toInd) {
       toInd = await UserModel.findById(msg.toInd);
 
-      io.to(toInd.socketID).emit("msgR", {
-        from,
-        toInd,
-        text: msg.text,
-        _id: msg._id,
-        images: msg.images,
-        createdAt: msg.createdAt,
-      });
-      socket.emit("msgR", {
-        from,
-        toInd,
-        toGrp,
-        text: msg.text,
-        _id: msg._id,
-        images: msg.images,
-        createdAt: msg.createdAt,
+      toInd.socketID.map(function (ids) {
+        io.to(ids).emit("msgR", {
+          from,
+          toInd,
+          text: msg.text,
+          _id: msg._id,
+          images: msg.images,
+          createdAt: msg.createdAt,
+        });
       });
     } else {
       toGrp = await GroupModel.findById(msg.toGrp);
