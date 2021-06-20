@@ -180,7 +180,7 @@ io.on("connection", function (socket) {
   socket.on("logout", async function (msg) {
     let user = await UserModel.findOne({ socketID: socket.id });
     let sID = user.socketID.splice(user.socketID.indexOf(socket.id), 1);
-    console.log("logout");
+
     await UserModel.findOneAndUpdate(
       {
         socketID: socket.id,
