@@ -176,22 +176,27 @@ io.on("connection", function (socket) {
   });
   socket.on("logout", async function () {
     socket.disconnect();
+    let user = await findOne({ socketID: socket.id });
     await UserModel.findOneAndUpdate(
       {
         socketID: socket.id,
       },
       {
         status: "offline",
+        socketID: user.socketID.splice(user.socketID.indexOf(socket.id), 1),
       }
     );
   });
   socket.on("disconnect", async function () {
+    let user = await findOne({ socketID: socket.id });
+
     await UserModel.findOneAndUpdate(
       {
         socketID: socket.id,
       },
       {
         status: "offline",
+        socketID: user.socketID.splice(user.socketID.indexOf(socket.id), 1),
       }
     );
   });
