@@ -178,13 +178,14 @@ io.on("connection", function (socket) {
   });
   socket.on("logout", async function () {
     let user = await findOne({ socketID: socket.id });
+    let sID = user.socketID.splice(user.socketID.indexOf(socket.id), 1);
     await UserModel.findOneAndUpdate(
       {
         socketID: socket.id,
       },
       {
-        status: "offline",
-        socketID: user.socketID.splice(user.socketID.indexOf(socket.id), 1),
+        status: sID.length ? "online" : "offline",
+        socketID: sID,
       }
     );
     io.emit("status", user);
@@ -192,14 +193,14 @@ io.on("connection", function (socket) {
   });
   socket.on("disconnect", async function () {
     let user = await findOne({ socketID: socket.id });
-
+    let sID = user.socketID.splice(user.socketID.indexOf(socket.id), 1);
     await UserModel.findOneAndUpdate(
       {
         socketID: socket.id,
       },
       {
-        status: "offline",
-        socketID: user.socketID.splice(user.socketID.indexOf(socket.id), 1),
+        status: sID.length ? "online" : "offline",
+        socketID: sID,
       }
     );
     io.emit("status", user);
