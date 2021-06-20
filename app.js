@@ -188,7 +188,7 @@ io.on("connection", function (socket) {
         socketID: sID,
       }
     );
-    io.emit("status", user);
+    socket.broadcast.emit("status", user);
     socket.disconnect();
   });
   socket.on("disconnect", async function () {
@@ -203,7 +203,7 @@ io.on("connection", function (socket) {
         socketID: sID,
       }
     );
-    io.emit("status", user);
+    socket.broadcast.emit("status", user);
   });
 });
 
