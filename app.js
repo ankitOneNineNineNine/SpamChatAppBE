@@ -49,7 +49,7 @@ io.on("connection", function (socket) {
   });
   socket.on("user", function (user) {
     console.log("user wala");
-    socket.broadcast.emit("status", user);
+    socket.emit("status", user);
   });
   socket.on("friendReqSend", async function (req) {
     let to = await UserModel.findById(req.to);
@@ -190,7 +190,7 @@ io.on("connection", function (socket) {
         socketID: sID,
       }
     );
-    io.emit("status", user);
+    socket.emit("status", user);
     socket.disconnect();
   });
   socket.on("disconnect", async function () {
