@@ -48,7 +48,7 @@ io.on("connection", function (socket) {
     console.log(err);
   });
   socket.on("user", function (user) {
-    console.log("user=>", user);
+    io.emit(user);
   });
   socket.on("friendReqSend", async function (req) {
     let to = await UserModel.findById(req.to);
@@ -59,14 +59,14 @@ io.on("connection", function (socket) {
     newNotif.from = req.from;
     newNotif.to = req.to;
     newNotif.save().then((notifs) => {
-      if (to.status === "online") {
-        io.to(to.socketID).emit("friendReqReceived", {
+      to.socketID.map(function (ids) {
+        io.to(ids).emit("friendReqReceived", {
           from: from,
           to: to,
           type: "FREQ",
           _id: notifs._id,
         });
-      }
+      });
     });
   });
   socket.on("msgS", async function (msg) {
@@ -146,28 +146,32 @@ io.on("connection", function (socket) {
       await from.save();
       await to.save();
 
-      socket.emit("doneFr", {
-        msg: `Congratulations ${from.fullname} and you are friends`,
-        id: msg.id,
-      });
-      if (from.status === "online") {
-        io.to(from.socketID).emit("newFriend", {
+      from.socketID.map(function (ids) {
+        io.to(ids).emit("doneFr", {
           msg: `${to.fullname} has accepted your friend request`,
           id: msg.id,
         });
-      }
+      });
+      to.socketID.map(function (ids) {
+        io.to(ids).emit("doneFr", {
+          msg: `Congratulations ${from.fullname} and you are friends`,
+          id: msg.id,
+        });
+      });
     } else {
-      socket.emit("doneFr", {
-        id: msg.id,
+      from.socketID.map(function (ids) {
+        io.to(ids).emit("doneFr", {
+          id: msg.id,
+        });
       });
     }
   });
   socket.on("newGroup", function (data) {
     data.members.forEach(async function (mem) {
       let user = await UserModel.findById(mem);
-      if (user.status === "online") {
-        socket.broadcast.to(user.socketID).emit("newGroupCreated", "N");
-      }
+      user.socketID.map(function (ids) {
+        io.to(ids).emit("newGroupCreated", "N");
+      });
     });
   });
   socket.on("logout", async function () {
