@@ -53,21 +53,23 @@ io.on("connection", function (socket) {
   socket.on("friendReqSend", async function (req) {
     let to = await UserModel.findById(req.to);
     let from = await UserModel.findById(req.from);
-    let newNotif = new NotificationModel({});
-    newNotif.name = "Friend Request";
-    newNotif.type = "FREQ";
-    newNotif.from = req.from;
-    newNotif.to = req.to;
-    newNotif.save().then((notifs) => {
-      to.socketID.map(function (ids) {
-        io.to(ids).emit("friendReqReceived", {
-          from: from,
-          to: to,
-          type: "FREQ",
-          _id: notifs._id,
+    if (from.friends.findIndex((friend) => friend._id === to._id) < 0) {
+      let newNotif = new NotificationModel({});
+      newNotif.name = "Friend Request";
+      newNotif.type = "FREQ";
+      newNotif.from = req.from;
+      newNotif.to = req.to;
+      newNotif.save().then((notifs) => {
+        to.socketID.map(function (ids) {
+          io.to(ids).emit("friendReqReceived", {
+            from: from,
+            to: to,
+            type: "FREQ",
+            _id: notifs._id,
+          });
         });
       });
-    });
+    }
   });
   socket.on("msgS", async function (msg) {
     try {
