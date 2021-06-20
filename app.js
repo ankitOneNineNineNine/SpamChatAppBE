@@ -85,7 +85,7 @@ io.on("connection", function (socket) {
       if (msg.toInd) {
         toInd = await UserModel.findById(msg.toInd);
 
-        toInd.socketID.map(function (ids) {
+        [...from.socketID, ...toInd.socketID].map(function (ids) {
           io.to(ids).emit("msgR", {
             from,
             toInd,
@@ -116,7 +116,7 @@ io.on("connection", function (socket) {
     if (msg.toInd) {
       toInd = await UserModel.findById(msg.toInd);
 
-      toInd.socketID.map(function (ids) {
+      [...from.socketID, ...toInd.socketID].map(function (ids) {
         io.to(ids).emit("msgR", {
           from,
           toInd,
@@ -188,6 +188,7 @@ io.on("connection", function (socket) {
         socketID: user.socketID.splice(user.socketID.indexOf(socket.id), 1),
       }
     );
+    io.emit("status", user);
   });
   socket.on("disconnect", async function () {
     let user = await findOne({ socketID: socket.id });
@@ -201,6 +202,7 @@ io.on("connection", function (socket) {
         socketID: user.socketID.splice(user.socketID.indexOf(socket.id), 1),
       }
     );
+    io.emit("status", user);
   });
 });
 
