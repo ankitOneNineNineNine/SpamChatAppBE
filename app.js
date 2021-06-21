@@ -91,7 +91,7 @@ io.on("connection", function (socket) {
             from,
             toInd,
             text: msg.text,
-            _id: msg._id,
+            _id: gotMsg._id,
             images: msg.images,
             createdAt: msg.createdAt,
           });
