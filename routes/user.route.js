@@ -2,7 +2,7 @@ const router = require("express").Router();
 const UserModel = require("../model/user.model");
 const path = require("path");
 const uploadProfileImg = require("../middlewares/upload.profile");
-const { uploadCloudinary } = require("../middlewares/upload.cloudinary");
+
 
 const streamUpload = require("../middlewares/directCloudinary");
 
