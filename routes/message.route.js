@@ -58,6 +58,11 @@ router.post("/", uploadMsg.array("images"), async function (req, res, next) {
 });
 
 router.put("/:id", function (req, res, next) {
+  if (!req.params.id) {
+    return next({
+      message: "No ID",
+    });
+  }
   MessageModel.findById(req.params.id).exec(function (err, msg) {
     if (err) return next(err);
 
