@@ -18,8 +18,8 @@ function socketAuth(socket, next) {
         user.socketID = s;
       } else {
         user.socketID = [socket.id];
+        user.status = "online";
       }
-      user.status = "online";
       user.groups.map((group) => {
         socket.join(`${group._id}`);
       });
