@@ -25,9 +25,9 @@ function uploadCloudinary(images, locs) {
           });
         }
       } catch (err) {
-        fs.unlink(imgURL, function (err, removed) {
-          if (err) console.log("file removing err");
-          else console.log("file removed");
+        await cloudinary.uploader.destroy(imgURL, {
+          folder: locs,
+          faces: true,
         });
         reject({
           msg: "err",
