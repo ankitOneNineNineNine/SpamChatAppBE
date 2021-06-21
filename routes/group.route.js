@@ -1,7 +1,7 @@
 const router = require("express").Router();
 const uploadGroupImg = require("../middlewares/upload.profile");
 const GroupModel = require("../model/group.model");
-const { uploadCloudinary } = require("../middlewares/upload.cloudinary");
+const streamUpload = require('../middlewares/directCloudinary')
 const UserModel = require("../model/user.model");
 
 router.post(

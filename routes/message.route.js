@@ -1,7 +1,7 @@
 const router = require("express").Router();
 const MessageModel = require("../model/message.model");
 const uploadMsg = require("../middlewares/upload.message");
-const { uploadCloudinary } = require("../middlewares/upload.cloudinary");
+
 const streamUpload = require("../middlewares/directCloudinary");
 
 router.get("/", function (req, res, next) {
