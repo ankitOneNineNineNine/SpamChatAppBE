@@ -193,9 +193,11 @@ io.on("connection", function (socket) {
     socket.disconnect();
   });
   socket.on("disconnect", async function () {
+ 
     let user = await UserModel.findOne({ "socketID.sid": socket.id });
+  
     if (user) {
-      let sID = user.socketID.filter((s) => s.sid === socket.id);
+      let sID = user.socketID.filter((s) => s.sid !== socket.id);
       user.socketID = sID;
       user.status = sID.length ? "online" : "offline";
       await user.save();
