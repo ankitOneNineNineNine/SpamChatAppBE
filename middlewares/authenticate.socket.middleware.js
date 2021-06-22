@@ -12,14 +12,17 @@ function socketAuth(socket, next) {
         const err = new Error("not authorized");
         return next(err);
       }
-      if (user.status === "online") {
-        let s = user.socketID;
-        s.push(socket.id);
-        user.socketID = s;
+      let pSID = user.socketID;
+      let i = pSID.findIndex((p) => p.loggedIn === val.loggedIn);
+      if (i < 0) {
+        pSID.push({
+          loggedIn: val.loggedIn,
+          sid: socket.id,
+        });
       } else {
-        user.socketID = [socket.id];
-        user.status = "online";
+        pSID[i].sid = socket.id;
       }
+      user.status = "online";
       user.groups.map((group) => {
         socket.join(`${group._id}`);
       });

@@ -45,7 +45,12 @@ const userSchema = Schema(
       enum: ["online", "offline"],
       default: "offline",
     },
-    socketID: [String],
+    socketID: [
+      {
+        loggedIn: String,
+        sid: String,
+      },
+    ],
     friends: [
       {
         type: Schema.Types.ObjectId,

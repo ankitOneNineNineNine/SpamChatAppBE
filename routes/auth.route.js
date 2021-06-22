@@ -2,7 +2,7 @@ const router = require("express").Router();
 const UserModel = require("../model/user.model");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-
+const randomstring = require("randomstring");
 router.post("/login", function (req, res, next) {
   if (req.body.token) {
     jwt.verify(req.body.token, process.env.JWTSECRET, function (err, val) {
@@ -65,7 +65,7 @@ router.post("/login", function (req, res, next) {
               });
             }
             jwt.sign(
-              { id: user._id },
+              { id: user._id, loggedIn: randomstring.generate(7) },
               process.env.JWTSECRET,
               async function (err, token) {
                 user.status = "online";
