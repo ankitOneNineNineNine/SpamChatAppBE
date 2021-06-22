@@ -48,7 +48,7 @@ io.on("connection", function (socket) {
     console.log(err);
   });
   socket.on("user", function (user) {
-    io.emit("status", user);
+    socket.broadcast.emit("status", user);
   });
   socket.on("friendReqSend", async function (req) {
     let to = await UserModel.findById(req.to);
@@ -193,16 +193,15 @@ io.on("connection", function (socket) {
     socket.disconnect();
   });
   socket.on("disconnect", async function () {
- 
     let user = await UserModel.findOne({ "socketID.sid": socket.id });
-  
+
     if (user) {
       let sID = user.socketID.filter((s) => s.sid !== socket.id);
       user.socketID = sID;
       user.status = sID.length ? "online" : "offline";
       await user.save();
 
-      io.emit("status", user);
+      socket.broadcast.emit("status", user);
     }
   });
 });
