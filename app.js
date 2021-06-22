@@ -48,7 +48,6 @@ io.on("connection", function (socket) {
     console.log(err);
   });
   socket.on("user", function (user) {
-    console.log("user wala");
     io.emit("status", user);
   });
   socket.on("friendReqSend", async function (req) {
@@ -178,35 +177,36 @@ io.on("connection", function (socket) {
     });
   });
   socket.on("logout", async function (msg) {
-    let user = await UserModel.findOne({ socketID: socket.id });
-    let sID = user.socketID.filter((sids) => sids !== socket.id);
+    // let user = await UserModel.findOne({ socketID: socket.id });
+    // let sID = user.socketID.filter((sids) => sids !== socket.id);
 
-    await UserModel.findOneAndUpdate(
-      {
-        socketID: socket.id,
-      },
-      {
-        status: sID.length ? "online" : "offline",
-        socketID: sID,
-      }
-    );
-    socket.emit("status", user);
+    // await UserModel.findOneAndUpdate(
+    //   {
+    //     socketID: socket.id,
+    //   },
+    //   {
+    //     status: sID.length ? "online" : "offline",
+    //     socketID: sID,
+    //   }
+    // );
+    // socket.emit("status", user);
     socket.disconnect();
   });
   socket.on("disconnect", async function () {
-    console.log(socket.id)
     let user = await UserModel.findOne({ socketID: socket.id });
-    let sID = user.socketID.filter((sids) => sids !== socket.id);
-    await UserModel.findOneAndUpdate(
-      {
-        socketID: socket.id,
-      },
-      {
-        status: sID.length ? "online" : "offline",
-        socketID: sID,
-      }
-    );
-    io.emit("status", user);
+    if (user) {
+      let sID = user.socketID.filter((sids) => sids !== socket.id);
+      await UserModel.findOneAndUpdate(
+        {
+          socketID: socket.id,
+        },
+        {
+          status: sID.length ? "online" : "offline",
+          socketID: sID,
+        }
+      );
+      io.emit("status", user);
+    }
   });
 });
 

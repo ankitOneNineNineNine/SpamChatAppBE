@@ -73,7 +73,7 @@ router.put("/:id", function (req, res, next) {
     };
 
     msg
-      .updateOne(updatedMessage)
+      .updateOne(updatedMessage, { timestamps: false })
       .then(function (data) {
         res.status(200).json("data");
       })
