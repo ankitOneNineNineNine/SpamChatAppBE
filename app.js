@@ -61,7 +61,7 @@ io.on("connection", function (socket) {
       newNotif.to = req.to;
       newNotif.save().then((notifs) => {
         to.socketID.map(function (ids) {
-           io.to(ids.sid).emit("friendReqReceived", {
+          io.to(ids.sid).emit("friendReqReceived", {
             from: from,
             to: to,
             type: "FREQ",
@@ -117,7 +117,7 @@ io.on("connection", function (socket) {
       toInd = await UserModel.findById(msg.toInd);
 
       [...from.socketID, ...toInd.socketID].map(function (ids) {
-         io.to(ids.sid).emit("msgR", {
+        io.to(ids.sid).emit("msgR", {
           from,
           toInd,
           text: msg.text,
@@ -149,20 +149,20 @@ io.on("connection", function (socket) {
       await to.save();
 
       from.socketID.map(function (ids) {
-         io.to(ids.sid).emit("doneFr", {
+        io.to(ids.sid).emit("doneFr", {
           msg: `${to.fullname} has accepted your friend request`,
           id: msg.id,
         });
       });
       to.socketID.map(function (ids) {
-         io.to(ids.sid).emit("doneFr", {
+        io.to(ids.sid).emit("doneFr", {
           msg: `Congratulations ${from.fullname} and you are friends`,
           id: msg.id,
         });
       });
     } else {
       from.socketID.map(function (ids) {
-         io.to(ids.sid).emit("doneFr", {
+        io.to(ids.sid).emit("doneFr", {
           id: msg.id,
         });
       });
@@ -172,7 +172,7 @@ io.on("connection", function (socket) {
     data.members.forEach(async function (mem) {
       let user = await UserModel.findById(mem);
       user.socketID.map(function (ids) {
-         io.to(ids.sid).emit("newGroupCreated", "N");
+        io.to(ids.sid).emit("newGroupCreated", "N");
       });
     });
   });
@@ -195,16 +195,11 @@ io.on("connection", function (socket) {
   socket.on("disconnect", async function () {
     let user = await UserModel.findOne({ "socketID.sid": socket.id });
     if (user) {
-      let sID = user.socketID.filter((sids) => sids !== socket.id);
-      await UserModel.findOneAndUpdate(
-        {
-          socketID: socket.id,
-        },
-        {
-          status: sID.length ? "online" : "offline",
-          socketID: sID,
-        }
-      );
+      let sID = user.socketID.filter((s) => s.sid === socket.id);
+      user.socketID = sID;
+      user.status = sID.length ? "online" : "offline";
+      await user.save();
+
       io.emit("status", user);
     }
   });
