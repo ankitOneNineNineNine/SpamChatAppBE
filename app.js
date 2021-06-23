@@ -48,7 +48,7 @@ io.on("connection", function (socket) {
     console.log(err);
   });
   socket.on("user", function (user) {
-    socket.broadcast.emit("status", user);
+    socket.broadcast.emit("frStatus", user);
   });
   socket.on("friendReqSend", async function (req) {
     let to = await UserModel.findById(req.to);
@@ -201,7 +201,7 @@ io.on("connection", function (socket) {
       user.status = sID.length ? "online" : "offline";
       await user.save();
 
-      socket.broadcast.emit("status", user);
+      socket.broadcast.emit("frStatus", user);
     }
   });
 });
