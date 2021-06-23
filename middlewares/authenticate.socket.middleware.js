@@ -23,6 +23,7 @@ function socketAuth(socket, next) {
         pSID[i].sid = socket.id;
       }
       if (user.status === "offline") {
+        
         socket.broadcast.emit("frStatus", {
           friend: user._id,
           status: "online",

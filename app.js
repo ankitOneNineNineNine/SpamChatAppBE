@@ -202,7 +202,7 @@ io.on("connection", function (socket) {
       if (status === "offline") {
         socket.broadcast.emit("frStatus", {
           friend: user._id,
-          status: "online",
+          status: "offline",
         });
       }
     }
