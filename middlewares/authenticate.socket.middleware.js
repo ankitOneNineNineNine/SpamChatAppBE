@@ -13,6 +13,12 @@ function socketAuth(socket, next) {
         return next(err);
       }
       let pSID = user.socketID;
+      if (!pSID.length) {
+        socket.broadcast.emit("frStatus", {
+          friend: user._id,
+          status: "online",
+        });
+      }
       let i = pSID.findIndex((p) => p.loggedIn === val.loggedIn);
       if (i < 0) {
         pSID.push({
@@ -22,13 +28,7 @@ function socketAuth(socket, next) {
       } else {
         pSID[i].sid = socket.id;
       }
-      if (user.status === "offline") {
-        
-        socket.broadcast.emit("frStatus", {
-          friend: user._id,
-          status: "online",
-        });
-      }
+
       user.status = "online";
       user.groups.map((group) => {
         socket.join(`${group._id}`);
