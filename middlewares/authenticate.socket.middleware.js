@@ -22,6 +22,12 @@ function socketAuth(socket, next) {
       } else {
         pSID[i].sid = socket.id;
       }
+      if (user.status === "offline") {
+        socket.broadcast.emit("frStatus", {
+          friend: user._id,
+          status: "online",
+        });
+      }
       user.status = "online";
       user.groups.map((group) => {
         socket.join(`${group._id}`);
