@@ -32,6 +32,10 @@ const UserModel = require("./model/user.model");
 const NotificationModel = require("./model/notification.model");
 const MessageModel = require("./model/message.model");
 const GroupModel = require("./model/group.model");
+const {
+  saveToken,
+  handlePushTokens,
+} = require("./middlewares/pushNotification");
 const server = require("http").createServer(app);
 
 const io = sio(server, {
@@ -47,7 +51,12 @@ io.on("connection", function (socket) {
   socket.on("connect_error", function (err) {
     console.log(err);
   });
-
+  socket.on("notToken", function (token) {
+    saveToken(token);
+  });
+  socket.on("messageNot", function (msg) {
+    handlePushTokens(msg);
+  });
   socket.on("friendReqSend", async function (req) {
     let to = await UserModel.findById(req.to);
     let from = await UserModel.findById(req.from);
