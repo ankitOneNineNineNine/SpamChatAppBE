@@ -20,6 +20,7 @@ const handlePushTokens = ({ token, title, body }) => {
       console.log(chunk, notifications);
       try {
         let receipts = await expo.sendPushNotificationsAsync(chunk);
+        console.log(receipts);
       } catch (e) {
         console.log(e);
       }
