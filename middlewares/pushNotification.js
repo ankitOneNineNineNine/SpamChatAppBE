@@ -13,20 +13,19 @@ const handlePushTokens = ({ token, title, body }) => {
       data: { body },
     });
   }
-};
+  let chunks = expo.chunkPushNotifications(notifications);
 
-let chunks = expo.chunkPushNotifications(notifications);
-
-(async () => {
-  for (let chunk of chunks) {
-    console.log(chunk, notifications);
-    try {
-      let receipts = await expo.sendPushNotificationsAsync(chunk);
-    } catch (e) {
-      console.log(e);
+  (async () => {
+    for (let chunk of chunks) {
+      console.log(chunk, notifications);
+      try {
+        let receipts = await expo.sendPushNotificationsAsync(chunk);
+      } catch (e) {
+        console.log(e);
+      }
     }
-  }
-})();
+  })();
+};
 
 const saveToken = (token) => {
   const exists = savedPushTokens.find((t) => t === token);
