@@ -3,24 +3,24 @@ const { Expo } = require("expo-server-sdk");
 let expo = new Expo({ accessToken: process.env.EXPO_ACCESS_TOKEN });
 let savedPushTokens = [];
 let notifications = [];
-const handlePushTokens = ({ token, title, body }) => {
+const handlePushTokens = ({ id, token, title, body }) => {
   if (savedPushTokens.find((t) => t === token)) {
-    notifications.push({
-      to: token,
-      sound: "default",
-      title,
-      body,
-      data: { body },
-    });
+    if (notifications.findIndex((n) => n.id === id) < 0) {
+      notifications.push({
+        id,
+        to: token,
+        sound: "default",
+        title,
+        body,
+      });
+    }
   }
   let chunks = expo.chunkPushNotifications(notifications);
 
   (async () => {
     for (let chunk of chunks) {
-      console.log(chunk, notifications);
       try {
         let receipts = await expo.sendPushNotificationsAsync(chunk);
-        console.log(receipts);
       } catch (e) {
         console.log(e);
       }
