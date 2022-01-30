@@ -14,8 +14,6 @@ router.get("/", function (req, res, next) {
         path: "members",
       },
     })
-    .populate("messages")
-    .populate("notifications")
     .exec(function (err, user) {
       res.status(200).json(user);
     });

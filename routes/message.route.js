@@ -28,33 +28,48 @@ router.get("/", function (req, res, next) {
 
 router.post("/", uploadMsg.array("images"), async function (req, res, next) {
   let images = [];
+  try{
   let fileUpload = new Promise(async function (resolve, reject) {
     req.files.forEach(async function (file, i) {
-      let messageImages = await streamUpload(file.buffer, "messages");
+     try{
+       let messageImages = await streamUpload(file.buffer, "messages");
+       images.push(messageImages.url);
+       if (i === req.files.length - 1) {
+         resolve("done");
+       }
 
-      images.push(messageImages.url);
-      if (i === req.files.length - 1) {
-        resolve("done");
-      }
+    }
+    catch(e){
+      console.log(e)
+    }
+    
     });
   });
-  await Promise.all([fileUpload]);
-
-  let textMsg = req.body.textMsg;
-  let toInd = req.body.toInd;
-  let from = req.body.from;
-  let toGrp = req.body.toGrp;
-  let message = new MessageModel({
-    toInd,
-    toGrp,
-    text: textMsg,
-    images,
-    from,
-  });
-  message
-    .save()
-    .then((data) => res.status(200).json(data))
-    .catch((err) => next(err));
+      await Promise.all([fileUpload]);
+      let textMsg = req.body.textMsg;
+      let toInd = req.body.toInd;
+      let from = req.body.from;
+      let imgTexts = req.body.imgTexts;
+      let toGrp = req.body.toGrp;
+      let prediction = req.body.prediction;
+      let message = new MessageModel({
+        toInd,
+        toGrp,
+        imgTexts: imgTexts,
+        text: textMsg,
+        images,
+        prediction,
+        from,
+      });
+      message
+        .save()
+        .then((data) => res.status(200).json(data))
+        .catch((err) => next(err));
+  }
+  catch(e){
+    console.log(e)
+    return next(e)
+  }
 });
 
 router.put("/:id", function (req, res, next) {

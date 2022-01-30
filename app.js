@@ -6,8 +6,8 @@ const logger = require("morgan");
 const appRouter = require("./appRouter");
 const app = express();
 const cors = require("cors");
-require("./dbSetup/mongodb.setup");
 require("dotenv").config();
+require("./setup/mongodb.setup");
 
 app.use(logger("dev"));
 app.use(express.json());
@@ -87,6 +87,7 @@ io.on("connection", function (socket) {
       newMsg.toInd = msg.toInd && msg.toInd;
       newMsg.toGrp = msg.toGrp && msg.toGrp;
       newMsg.text = msg.text;
+      newMsg.prediction = msg.prediction;
       let gotMsg = await newMsg.save();
 
       if (msg.toInd) {
@@ -98,6 +99,7 @@ io.on("connection", function (socket) {
             toInd,
             text: msg.text,
             _id: gotMsg._id,
+            prediction: gotMsg.prediction,
             images: msg.images,
             createdAt: msg.createdAt,
           });
@@ -109,6 +111,7 @@ io.on("connection", function (socket) {
           from,
           toGrp,
           text: msg.text,
+          prediction: gotMsg.prediction,
           _id: gotMsg._id,
           createdAt: gotMsg.createdAt,
         });
@@ -128,6 +131,7 @@ io.on("connection", function (socket) {
           from,
           toInd,
           text: msg.text,
+          prediction: msg.prediction,
           _id: msg._id,
           images: msg.images,
           createdAt: msg.createdAt,
@@ -141,6 +145,7 @@ io.on("connection", function (socket) {
         toGrp,
         text: msg.text,
         _id: msg._id,
+        prediction: msg.prediction,
         images: msg.images,
         createdAt: msg.createdAt,
       });

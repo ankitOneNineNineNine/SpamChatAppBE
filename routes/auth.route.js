@@ -17,8 +17,6 @@ router.post("/login", function (req, res, next) {
             path: "members",
           },
         })
-        .populate("messages")
-        .populate("notifications")
 
         .exec(function (err, user) {
           if (err) {
@@ -36,13 +34,13 @@ router.post("/login", function (req, res, next) {
     UserModel.findOne({
       $or: [{ username: req.body.username }, { email: req.body.username }],
     })
-      .populate("friends")
-      .populate("groups")
-      .populate("messages")
-      .populate("notifications")
-      .populate({
-        path: "groups.members",
-      })
+    .populate("friends")
+    .populate({
+      path: "groups",
+      populate: {
+        path: "members",
+      },
+    })
       .exec(function (err, user) {
         if (err) {
           return next(err);
