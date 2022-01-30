@@ -4,10 +4,10 @@ const Schema = mongoose.Schema;
 
 const messageSchema = Schema(
   {
-    prediction: {
-      enum: ['spam', 'Ham'],
-      default: 'Ham'
-    }, 
+   spam: {
+     type: Boolean,
+     default: false,
+   },
     from: {
       type: Schema.Types.ObjectId,
       ref: "user",
