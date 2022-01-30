@@ -5,8 +5,8 @@ const Schema = mongoose.Schema;
 const messageSchema = Schema(
   {
     prediction: {
-      enum: ['spam', 'ham'],
-      default: 'ham'
+      enum: ['spam', 'Ham'],
+      default: 'Ham'
     }, 
     from: {
       type: Schema.Types.ObjectId,
