@@ -6,8 +6,8 @@ const messageSchema = Schema(
   {
    prediction: {
      type: String,
-     enum: ['spam', 'Ham'],
-     default: 'Ham',
+     enum: ['spam', 'ham'],
+     default: 'ham',
    },
     from: {
       type: Schema.Types.ObjectId,
